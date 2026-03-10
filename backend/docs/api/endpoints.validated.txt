@@ -1,0 +1,24 @@
+# Validated API Endpoints (PASS script)
+# Generated: 2026-02-24
+
+GET /api/cars/search
+GET /api/cars/{id}/reviews
+GET /api/user/reservations
+GET /api/company/stats
+
+POST /api/auth/register
+POST /api/auth/login
+GET /api/user/profile
+
+POST /api/admin/categories
+POST /api/admin/companies
+
+POST /api/company/cars
+POST /api/reservations
+POST /api/reviews
+POST /api/payments
+
+# Notes:
+# - /api/user/* requires auth:api with client token.
+# - /api/company/* requires auth:api + role:company token.
+# - /api/admin/* requires auth:api + role:admin token.

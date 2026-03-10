@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-02-24",
+  "base_url": "http://127.0.0.1:8000/api",
+  "validated_endpoints": [
+    {
+      "method": "GET",
+      "path": "/cars/search",
+      "auth": "public"
+    },
+    {
+      "method": "GET",
+      "path": "/cars/{id}/reviews",
+      "auth": "public"
+    },
+    {
+      "method": "GET",
+      "path": "/user/reservations",
+      "auth": "auth:api"
+    },
+    {
+      "method": "GET",
+      "path": "/company/stats",
+      "auth": "auth:api + role:company"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "auth": "public"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "auth": "public"
+    },
+    {
+      "method": "GET",
+      "path": "/user/profile",
+      "auth": "auth:api"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/categories",
+      "auth": "auth:api + role:admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/companies",
+      "auth": "auth:api + role:admin"
+    },
+    {
+      "method": "POST",
+      "path": "/company/cars",
+      "auth": "auth:api + role:company"
+    },
+    {
+      "method": "POST",
+      "path": "/reservations",
+      "auth": "auth:api"
+    },
+    {
+      "method": "POST",
+      "path": "/reviews",
+      "auth": "auth:api"
+    },
+    {
+      "method": "POST",
+      "path": "/payments",
+      "auth": "auth:api"
+    }
+  ]
+}
