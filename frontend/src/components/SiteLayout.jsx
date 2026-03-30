@@ -16,8 +16,13 @@ export default function SiteLayout() {
   const { isAuthenticated, user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showPartnerCta, setShowPartnerCta] = useState(false);
 
   const showHomeInNav = useMemo(() => location.pathname !== "/", [location.pathname]);
+  const isAuthPage = useMemo(() => location.pathname.startsWith("/auth"), [location.pathname]);
+  const isPartnerSpace = useMemo(() => location.pathname.startsWith("/partner"), [location.pathname]);
+  const isPartnerAuthPage = useMemo(() => location.pathname.startsWith("/partner/auth"), [location.pathname]);
+  const isHomePage = useMemo(() => location.pathname === "/", [location.pathname]);
 
   const headerName = useMemo(() => user?.name || "youssef bel", [user?.name]);
   const avatarInitials = useMemo(() => {
@@ -38,6 +43,10 @@ export default function SiteLayout() {
 
     return null;
   }, [user?.avatar, user?.avatar_key]);
+
+  useEffect(() => {
+    setShowPartnerCta(!isAuthenticated && !isPartnerSpace && isHomePage);
+  }, [isAuthenticated, isPartnerSpace, isHomePage]);
 
   useEffect(() => {
     let timer;
@@ -66,18 +75,31 @@ export default function SiteLayout() {
     navigate("/auth?mode=signin");
   }
 
+  function handlePartnerCta() {
+    navigate("/partner/auth?mode=register");
+  }
+
   return (
     <div className="page-shell">
       <header className="site-header">
         <div className="content-wrap site-header-inner">
           <BrandLogo className="header-logo" />
-          <nav className="site-nav" aria-label="Primary">
-            {showHomeInNav ? <Link to="/">Home</Link> : null}
-            <a href="/#fleet">Fleet</a>
-            <Link to="/companies">Companies</Link>
-            <a href="/#about">About</a>
-            <a href="/#contact">Contact</a>
-          </nav>
+          {isPartnerSpace && !isPartnerAuthPage ? (
+            <nav className="site-nav" aria-label="Primary">
+              <Link to="/partner/cars">Cars Management</Link>
+              <Link to="/partner/bookings">Bookings</Link>
+            </nav>
+          ) : !isPartnerAuthPage ? (
+            <nav className="site-nav" aria-label="Primary">
+              {showHomeInNav ? <Link to="/">Home</Link> : null}
+              <Link to="/companies">Companies</Link>
+              <a href="/#contact">Contact</a>
+            </nav>
+          ) : (
+            <nav className="site-nav partner-auth-navbar" aria-label="Primary">
+              <Link to="/">Retour a l'accueil client</Link>
+            </nav>
+          )}
 
           {isAuthenticated ? (
             <div className="header-user-wrap">
@@ -117,9 +139,19 @@ export default function SiteLayout() {
               ) : null}
             </div>
           ) : (
-            <button onClick={handleAuthButton} type="button" className="sign-button">
-              Sign In / Register
-            </button>
+            <div className="header-actions-guest">
+              {showPartnerCta ? (
+                <button className="partner-cta-btn" type="button" onClick={handlePartnerCta}>
+                  Devenez Partenaire
+                </button>
+              ) : null}
+
+              {!isAuthPage && !isPartnerAuthPage ? (
+                <button onClick={handleAuthButton} type="button" className="sign-button">
+                  Sign In / Register
+                </button>
+              ) : null}
+            </div>
           )}
         </div>
       </header>
@@ -129,8 +161,6 @@ export default function SiteLayout() {
       <footer className="site-footer">
         <div className="content-wrap site-footer-inner">
           <div className="footer-links">
-            <a href="/#about">Company</a>
-            <a href="/#contact">Support</a>
             <a href="/#contact">Social Media</a>
           </div>
 

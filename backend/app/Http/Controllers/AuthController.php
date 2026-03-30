@@ -3,17 +3,106 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
+    public function companyRegister(Request $request)
+    {
+        $normalizedUserEmail = mb_strtolower(trim((string) $request->email));
+        $normalizedCompanyEmail = mb_strtolower(trim((string) $request->company_email));
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+            'company_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'address' => 'required|string|max:1000',
+            'city' => 'required|string|max:255',
+            'phone' => 'required|string|max:30',
+            'company_email' => 'required|string|email|max:255',
+            'turnstile_token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $turnstileSecret = (string) config('services.turnstile.secret');
+        if ($turnstileSecret === '') {
+            return response()->json(['message' => 'Captcha service is not configured'], 500);
+        }
+
+        $turnstileResponse = Http::asForm()
+            ->timeout(10)
+            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => $turnstileSecret,
+                'response' => $request->turnstile_token,
+                'remoteip' => $request->ip(),
+            ]);
+
+        if (!$turnstileResponse->ok() || !$turnstileResponse->json('success')) {
+            return response()->json(['message' => 'Captcha verification failed'], 422);
+        }
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('company-logos', 'public');
+        }
+
+        $user = null;
+        $company = null;
+
+        DB::transaction(function () use ($request, $logoPath, &$user, &$company) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $normalizedUserEmail,
+                'password' => Hash::make($request->password),
+                'role' => 'company',
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'city' => $request->city,
+                'status' => 'active',
+            ]);
+
+            $company = Company::create([
+                'user_id' => $user->id,
+                'name' => $request->company_name,
+                'description' => $request->description,
+                'logo' => $logoPath,
+                'address' => $request->address,
+                'city' => $request->city,
+                'phone' => $request->phone,
+                'email' => $normalizedCompanyEmail,
+                'status' => 'pending',
+                'verified' => false,
+            ]);
+        });
+
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'message' => 'Company account created successfully',
+            'user' => $user,
+            'company' => $company,
+            'token' => $token,
+        ], 201);
+    }
+
     // Register
     public function register(Request $request)
     {
+        $normalizedEmail = mb_strtolower(trim((string) $request->email));
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'first_name' => 'nullable|string|max:255',
@@ -22,6 +111,7 @@ class AuthController extends Controller
             'username' => 'nullable|string|max:255|unique:users,username',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,company,client',
+            'turnstile_token' => 'required|string',
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|in:male,female,other',
             'date_of_birth' => 'nullable|date',
@@ -36,11 +126,28 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $turnstileSecret = (string) config('services.turnstile.secret');
+        if ($turnstileSecret === '') {
+            return response()->json(['message' => 'Captcha service is not configured'], 500);
+        }
+
+        $turnstileResponse = Http::asForm()
+            ->timeout(10)
+            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => $turnstileSecret,
+                'response' => $request->turnstile_token,
+                'remoteip' => $request->ip(),
+            ]);
+
+        if (!$turnstileResponse->ok() || !$turnstileResponse->json('success')) {
+            return response()->json(['message' => 'Captcha verification failed'], 422);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
-            'email' => $request->email,
+            'email' => $normalizedEmail,
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -67,6 +174,8 @@ class AuthController extends Controller
     // Login
     public function login(Request $request)
     {
+        $normalizedEmail = mb_strtolower(trim((string) $request->email));
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -76,7 +185,10 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $credentials = $request->only('email', 'password');
+        $credentials = [
+            'email' => $normalizedEmail,
+            'password' => (string) $request->password,
+        ];
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {

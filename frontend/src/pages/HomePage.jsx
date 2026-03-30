@@ -12,7 +12,7 @@ import searchIcon from "../assets/icon-search.png";
 
 const COMPANY_ID_FILTER = Number(import.meta.env.VITE_COMPANY_ID || 0);
 const ONLY_CARS_WITH_IMAGES =
-  (import.meta.env.VITE_ONLY_CARS_WITH_IMAGES || "true").toLowerCase() === "true";
+  (import.meta.env.VITE_ONLY_CARS_WITH_IMAGES || "false").toLowerCase() === "true";
 
 const whyItems = [
   {

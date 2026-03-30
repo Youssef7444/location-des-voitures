@@ -19,6 +19,7 @@ use App\Http\Controllers\DocumentController;
 
 // Public auth
 Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/company-register', [AuthController::class, 'companyRegister']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Public browsing

@@ -74,7 +74,7 @@ export default function ArchivesPage() {
 
         {!sortedCars.length ? (
           <div className="profile-form-card">
-            <p className="muted-dark">Aucune voiture archivee pour le moment.</p>
+            <p className="muted-dark">No cars archived at the moment.</p>
           </div>
         ) : (
           <div className="archives-grid">

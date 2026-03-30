@@ -8,6 +8,11 @@ import CompaniesPage from "./pages/CompaniesPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ArchivesPage from "./pages/ArchivesPage";
+import PartnerAuthPage from "./pages/PartnerAuthPage";
+import PartnerCarsPage from "./pages/PartnerCarsPage";
+import PartnerAddCarPage from "./pages/PartnerAddCarPage";
+import PartnerBookingsPage from "./pages/PartnerBookingsPage";
+import PartnerSettingsPage from "./pages/PartnerSettingsPage";
 
 export default function App() {
   return (
@@ -21,6 +26,11 @@ export default function App() {
         <Route path="/companies/:companyId" element={<CompanyPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/archives" element={<ArchivesPage />} />
+        <Route path="/partner/auth" element={<PartnerAuthPage />} />
+        <Route path="/partner/cars" element={<PartnerCarsPage />} />
+        <Route path="/partner/cars/new" element={<PartnerAddCarPage />} />
+        <Route path="/partner/bookings" element={<PartnerBookingsPage />} />
+        <Route path="/partner/settings" element={<PartnerSettingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

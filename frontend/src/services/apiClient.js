@@ -63,6 +63,15 @@ api.interceptors.response.use(
   }
 );
 
+api.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 function unwrapResponse(promise) {
   return promise.then((response) => response.data);
 }
@@ -96,6 +105,19 @@ export function resolveMediaUrl(path) {
 }
 
 export const authApi = {
+  companyRegister(formData) {
+    return unwrapResponse(
+      api.post("/auth/company-register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+    ).then((data) => {
+      if (data?.token) setAuthToken(data.token);
+      return data;
+    });
+  },
+
   register(payload) {
     return unwrapResponse(api.post("/auth/register", payload)).then((data) => {
       if (data?.token) setAuthToken(data.token);
@@ -290,6 +312,16 @@ export const companyApi = {
 
   deleteCar(carId) {
     return unwrapResponse(api.delete(`/company/cars/${carId}`));
+  },
+
+  createCarImage(formData) {
+    return unwrapResponse(
+      api.post("/company/car-images", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+    );
   },
 
   getStats() {
