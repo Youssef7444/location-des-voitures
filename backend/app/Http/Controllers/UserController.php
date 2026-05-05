@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    private function publicUploadDisk(): string
+    {
+        return (string) config('filesystems.public_upload_disk', 'public');
+    }
+
     public function index()
     {
         $users = User::paginate(15);
@@ -189,7 +194,7 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = $request->file('avatar')->store('avatars', $this->publicUploadDisk());
             $user->avatar = $path;
         }
 

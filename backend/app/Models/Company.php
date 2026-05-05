@@ -63,6 +63,6 @@ class Company extends Model
             return $this->logo;
         }
 
-        return Storage::disk('public')->url($this->logo);
+        return Storage::disk(config('filesystems.public_upload_disk', 'public'))->url($this->logo);
     }
 }

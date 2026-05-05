@@ -41,6 +41,6 @@ class CarImage extends Model
             return $this->image_path;
         }
 
-        return Storage::disk('public')->url($this->image_path);
+        return Storage::disk(config('filesystems.public_upload_disk', 'public'))->url($this->image_path);
     }
 }

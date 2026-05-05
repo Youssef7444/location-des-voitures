@@ -1,5 +1,13 @@
 <?php
 
+$publicUploadsRoot = (string) env('PUBLIC_UPLOADS_ROOT', '');
+
+if ($publicUploadsRoot === '') {
+    $publicUploadsRoot = public_path('storage');
+} elseif (!preg_match('/^(\/|[A-Za-z]:[\/\\\\])/', $publicUploadsRoot)) {
+    $publicUploadsRoot = base_path($publicUploadsRoot);
+}
+
 return [
 
     /*
@@ -14,6 +22,8 @@ return [
     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
+
+    'public_upload_disk' => env('PUBLIC_UPLOAD_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,6 +51,15 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'public_uploads' => [
+            'driver' => 'local',
+            'root' => $publicUploadsRoot,
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,

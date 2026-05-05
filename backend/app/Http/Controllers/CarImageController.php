@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class CarImageController extends Controller
 {
+    private function publicUploadDisk(): string
+    {
+        return (string) config('filesystems.public_upload_disk', 'public');
+    }
+
     public function index()
     {
         $images = CarImage::with('car')->paginate(15);
@@ -38,7 +43,7 @@ class CarImageController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $path = $request->file('image')->store('cars', 'public');
+        $path = $request->file('image')->store('cars', $this->publicUploadDisk());
 
         if ($request->boolean('is_main')) {
             CarImage::where('car_id', $request->car_id)->update(['is_main' => false]);
@@ -65,7 +70,7 @@ class CarImageController extends Controller
         }
 
         if ($image->image_path) {
-            Storage::disk('public')->delete($image->image_path);
+            Storage::disk($this->publicUploadDisk())->delete($image->image_path);
         }
 
         $image->delete();

@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
+    private function publicUploadDisk(): string
+    {
+        return (string) config('filesystems.public_upload_disk', 'public');
+    }
+
     // GET /api/companies - Récupérer toutes les entreprises
     public function index()
     {
@@ -126,10 +131,10 @@ class CompanyController extends Controller
         }
 
         if ($company->logo && !str_starts_with($company->logo, 'http://') && !str_starts_with($company->logo, 'https://')) {
-            Storage::disk('public')->delete($company->logo);
+            Storage::disk($this->publicUploadDisk())->delete($company->logo);
         }
 
-        $path = $request->file('logo')->store('companies', 'public');
+        $path = $request->file('logo')->store('companies', $this->publicUploadDisk());
         $company->logo = $path;
         $company->save();
 

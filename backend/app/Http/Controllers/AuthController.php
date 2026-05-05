@@ -14,6 +14,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
+    private function publicUploadDisk(): string
+    {
+        return (string) config('filesystems.public_upload_disk', 'public');
+    }
+
     public function companyRegister(Request $request)
     {
         $normalizedUserEmail = mb_strtolower(trim((string) $request->email));
@@ -56,7 +61,7 @@ class AuthController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('company-logos', 'public');
+            $logoPath = $request->file('logo')->store('company-logos', $this->publicUploadDisk());
         }
 
         $user = null;

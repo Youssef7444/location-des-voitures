@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Validator;
 
 class DocumentController extends Controller
 {
+    private function publicUploadDisk(): string
+    {
+        return (string) config('filesystems.public_upload_disk', 'public');
+    }
+
     public function index(Request $request)
     {
         $documents = Document::where('user_id', $request->user()->id)->paginate(15);
@@ -37,7 +42,7 @@ class DocumentController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $path = $request->file('file')->store('documents', 'public');
+        $path = $request->file('file')->store('documents', $this->publicUploadDisk());
 
         $document = Document::create([
             'user_id' => $request->user()->id,
