@@ -134,18 +134,7 @@ documents
 
 The app will write uploaded files there through the `public_uploads` disk.
 
-## 7. Database
 
-In InfinityFree panel:
-
-- create a MySQL database
-- import your SQL dump or run your migrations locally and export the DB
-
-If migrations cannot be run on server, the practical approach is:
-
-1. prepare the database locally
-2. export it with phpMyAdmin
-3. import it into InfinityFree phpMyAdmin
 
 ## 8. Frontend connection
 
