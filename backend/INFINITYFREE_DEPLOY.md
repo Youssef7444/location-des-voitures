@@ -37,7 +37,11 @@ Keep the generated `APP_KEY` and `JWT_SECRET`.
 On InfinityFree, use this structure:
 
 ```text
-htdocs/
+account-root/
+  htdocs/
+    index.php
+    .htaccess
+    storage/
   laravel_app/
     app/
     bootstrap/
@@ -50,15 +54,11 @@ htdocs/
     vendor/
     artisan
     .env
-  public_html/
-    index.php
-    .htaccess
-    storage/
 ```
 
 ## 4. What to upload where
 
-### Upload to `htdocs/laravel_app`
+### Upload to `laravel_app`
 
 Upload the full Laravel backend project:
 
@@ -76,7 +76,7 @@ Upload the full Laravel backend project:
 
 Do not rely on Composer on InfinityFree. Upload `vendor` from your local machine.
 
-### Upload to `htdocs/public_html`
+### Upload to `htdocs`
 
 Upload these files from:
 
@@ -87,7 +87,7 @@ Do not upload Laravel's original `backend/public/index.php` directly.
 
 ## 5. Environment file
 
-Create `htdocs/laravel_app/.env` using:
+Create `laravel_app/.env` using:
 
 - [backend/.env.infinityfree.example](c:/Users/lenovo/Desktop/PFE/location-des-voitures/backend/.env.infinityfree.example)
 
@@ -108,7 +108,7 @@ CACHE_STORE=file
 QUEUE_CONNECTION=sync
 FILESYSTEM_DISK=public_uploads
 PUBLIC_UPLOAD_DISK=public_uploads
-PUBLIC_UPLOADS_ROOT=../public_html/storage
+PUBLIC_UPLOADS_ROOT=../htdocs/storage
 ```
 
 ## 6. Images and uploads
@@ -116,13 +116,13 @@ PUBLIC_UPLOADS_ROOT=../public_html/storage
 This project is configured so InfinityFree can store uploads directly in:
 
 ```text
-public_html/storage
+htdocs/storage
 ```
 
 That avoids dependency on `storage:link`.
-The `PUBLIC_UPLOADS_ROOT=../public_html/storage` value is resolved relative to `laravel_app`.
+The `PUBLIC_UPLOADS_ROOT=../htdocs/storage` value is resolved relative to `laravel_app`.
 
-Create these folders in `public_html/storage`:
+Create these folders in `htdocs/storage`:
 
 ```text
 avatars
